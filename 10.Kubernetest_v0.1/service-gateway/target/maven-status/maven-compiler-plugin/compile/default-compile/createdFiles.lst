@@ -1,0 +1,3 @@
+org\daniel\netflix\servicegateway\controller\TodoServiceProxy.class
+org\daniel\netflix\servicegateway\controller\ServiceController.class
+org\daniel\netflix\servicegateway\ServiceGatewayApplication.class

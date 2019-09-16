@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project name="maven-antrun-" default="main"  >
+<target name="main">
+  <exec executable="docker">
+    <arg value="tag"/>
+    <arg value="pcsopcso/resourceserver:0.0.1-SNAPSHOT"/>
+    <arg value="pcsopcso/resourceserver:latest"/>
+  </exec>
+  <exec executable="docker">
+    <arg value="push"/>
+    <arg value="pcsopcso/resourceserver:latest"/>
+  </exec>
+</target>
+</project>

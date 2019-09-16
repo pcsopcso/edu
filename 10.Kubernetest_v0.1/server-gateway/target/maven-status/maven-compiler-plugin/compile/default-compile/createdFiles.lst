@@ -1,0 +1,2 @@
+org\daniel\netflix\servergateway\filters\pre\SimpleLoggingFilter.class
+org\daniel\netflix\servergateway\ServerGatewayApplication.class

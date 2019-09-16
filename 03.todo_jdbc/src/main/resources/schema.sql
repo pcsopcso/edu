@@ -1,0 +1,14 @@
+DROP TABLE IF EXISTS TODO;
+/**********************************/
+/* Table Name: 회원 */
+/**********************************/
+CREATE TABLE TODO
+(
+	todoID INT NOT NULL AUTO_INCREMENT,
+	user varchar(50) NOT NULL,
+	desc varchar(100) NOT NULL,
+	targetDate varchar(40) NOT NULL,
+	isDone boolean NOT NULL,
+	PRIMARY KEY (todoID)
+);
+

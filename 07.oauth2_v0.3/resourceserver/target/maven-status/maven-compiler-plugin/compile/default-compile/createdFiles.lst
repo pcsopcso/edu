@@ -1,0 +1,11 @@
+org\resourceserver\config\OAuth2ResourceServerConfig$2.class
+org\resourceserver\ResourceServerApplication.class
+org\resourceserver\config\DatabaseLoader.class
+org\resourceserver\controller\ResourceController$UserProfile.class
+org\resourceserver\controller\ResourceController.class
+org\resourceserver\entity\Employee.class
+org\resourceserver\controller\ManagerRepository.class
+org\resourceserver\entity\Manager.class
+org\resourceserver\config\OAuth2ResourceServerConfig$1.class
+org\resourceserver\config\OAuth2ResourceServerConfig.class
+org\resourceserver\controller\EmployeeRepository.class

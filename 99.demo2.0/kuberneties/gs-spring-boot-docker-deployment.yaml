@@ -1,0 +1,36 @@
+apiVersion: apps/v1 # for versions before 2.13.0 use apps/v1
+kind: Deployment
+metadata:
+  name: gs-spring-boot-docker-deployment
+  labels:
+    app: gs-spring-boot-docker
+spec:
+  replicas: 2
+    minReadySeconds: 10
+    strategy:
+      type: RollingUpdate
+      rollingUpdate:
+        maxUnavailable: 25%
+  selector:
+    matchLabels:
+      app: gs-spring-boot-docker
+  template:
+    metadata:
+      labels:
+        app: gs-spring-boot-docker
+    spec:
+      containers:
+      - name: gs-spring-boot-docker
+        image: pcsopcso/gs-spring-boot-docker:1.0
+        ports:
+        - containerPort: 9090
+        imagePullPolicy: Always
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+      nodeSelector:
+        node-type: spring-boot

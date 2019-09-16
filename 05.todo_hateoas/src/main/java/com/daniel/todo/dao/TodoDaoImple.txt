@@ -1,0 +1,201 @@
+package com.daniel.todo.dao;
+
+import java.sql.PreparedStatement;
+import java.sql.Statement;
+import java.sql.Types;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.daniel.todo.dto.Todo;
+import com.daniel.todo.mapper.TodoRowMapper;
+import com.daniel.todo.model.TodoEntity;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public class TodoDaoImple implements TodoDao {
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
+
+    @Override
+    public Long insert(Todo Todo) throws Exception {
+        Long returnKeyvalue = 0L;
+
+        String sql = "insert into Todo(user, desc, targetDate, isDone) values(?, ?, ?, ?)";
+        try {
+            final KeyHolder keyHolder = new GeneratedKeyHolder();
+
+            TodoEntity todoEntity = Todo.toEntity();
+
+            jdbcTemplate.update(connection -> {
+                PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+                ps.setString(1, todoEntity.getUser());
+                ps.setString(2, todoEntity.getDesc());
+                ps.setString(3, todoEntity.getTargetDate());
+                ps.setBoolean(4, todoEntity.isDone());
+                return ps;
+            }, keyHolder);
+
+            returnKeyvalue = keyHolder.getKey().longValue();
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            returnKeyvalue = -1L;
+            e.printStackTrace();
+        }
+        return returnKeyvalue;
+    }
+
+    @Override
+    public Long insert(String user, String desc, String targetDate, boolean isDone) throws Exception {
+        Long returnKeyvalue = -1L;
+        String sql = "insert into Todo(user, desc, targetDate, isDone) values(?,?,?,?)";
+        try {
+
+            final KeyHolder keyHolder = new GeneratedKeyHolder();
+
+            jdbcTemplate.update(connection -> {
+                PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+                ps.setString(1, user);
+                ps.setString(2, desc);
+                ps.setString(3, targetDate);
+                ps.setBoolean(4, isDone);
+                return ps;
+            }, keyHolder);
+
+            returnKeyvalue = keyHolder.getKey().longValue();
+
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            returnKeyvalue = -1L;
+            e.printStackTrace();
+        }
+        return returnKeyvalue;
+    }
+
+    @Override
+    public int[] insert(List<Todo> TodoList) throws Exception {
+        int[] result = null;
+        String sql = "insert into Todo(user, desc, targetDate, isDone) values(?, ?, ?, ?)";
+        try {
+            // 성능상 이점이 많다. 8초->0.07초 5000개 insert 시에
+            int[] argTypes = new int[4];
+            argTypes[0] = Types.VARCHAR;
+            argTypes[1] = Types.VARCHAR;
+            argTypes[2] = Types.VARCHAR;
+            argTypes[3] = Types.BOOLEAN;
+
+            List<Object[]> batch = new ArrayList<Object[]>();
+            for (Todo Todo : TodoList) {
+                TodoEntity todoEntity = Todo.toEntity();
+                Object[] values = new Object[] { todoEntity.getUser(), todoEntity.getDesc(), todoEntity.getTargetDate(),
+                        todoEntity.isDone() };
+                batch.add(values);
+            }
+
+            result = jdbcTemplate.batchUpdate(sql, batch, argTypes);
+
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    @Override
+    public int update(Todo Todo) throws Exception {
+        int result = 0;
+        String sql = "update Todo set user=?, desc=?, targetDate=?, isDone = ? WHERE id=?";
+        try {
+            TodoEntity todoEntity = Todo.toEntity();
+            result = jdbcTemplate.update(sql, todoEntity.getUser(), todoEntity.getDesc(), todoEntity.getTargetDate(),
+                    todoEntity.isDone(), todoEntity.getTargetDate());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    @Override
+    public int update(Long todoID, String user, String desc, String targetDate, boolean isDone) throws Exception {
+        int result = 0;
+        String sql = "update Todo set user=?, desc=?, targetDate=?, isDone = ? WHERE todoID=?";
+        try {
+            result = jdbcTemplate.update(sql, user, desc, targetDate, isDone, todoID);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    @Override
+    public int delete(Long todoID) throws Exception {
+        int result = 0;
+        String sql = "delete from Todo where todoID = ?";
+        try {
+            result = jdbcTemplate.update(sql, todoID);
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    @Override
+    public Todo findById(long todoID) throws Exception {
+        Todo todo = null;
+        String sql = "select * from Todo where todoID = ?";
+        try {
+            todo = jdbcTemplate.queryForObject(sql, new Object[] { todoID }, new TodoRowMapper());
+            //Todo = TodoRowMapper.convertValue(todoEntity, new TypeReference<Todo>() {});
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        return  todo;
+    }
+
+    @Override
+    public Todo findByIdDesc() {
+        Todo todo = null;
+        String sql = "SELECT * FROM Todo ORDER BY id DESC LIMIT 1;";
+        try {
+            todo = jdbcTemplate.queryForObject(sql, new TodoRowMapper());
+            //Todo = TodoRowMapper.convertValue(todoEntity, new TypeReference<Todo>() {});
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return todo;
+    }
+
+    @Override
+    public List<Todo> findByUser(String user) throws Exception {
+        List<Todo> TodoList = null;
+        String sql = "select * from Todo where user = ?";
+        try {
+            TodoList = jdbcTemplate.query(sql, new Object[] { user }, new TodoRowMapper());
+            //TodoList = TodoRowMapper.convertValue(todoEntityList, new TypeReference<ArrayList<Todo>>() {});
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return TodoList;
+    }
+
+    @Override
+    public List<Todo> findAll() throws Exception {
+        List<Todo> todoList = null;
+        String sql = "select * from Todo";
+        try {
+            todoList = jdbcTemplate.query(sql, new TodoRowMapper());
+
+            // Todo class default construct 가 있어야 변환이 된다.
+            //TodoList = TodoRowMapper.convertValue(todoEntityList, new TypeReference<ArrayList<Todo>>() {});
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return todoList;
+    }
+}

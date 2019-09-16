@@ -1,0 +1,8 @@
+org\daniel\netflix\todoservice\configuration\ApplicationConfiguration.class
+org\daniel\netflix\todoservice\controller\MessageController.class
+org\daniel\netflix\todoservice\model\TodoEntity.class
+org\daniel\netflix\todoservice\controller\RandomNumberController.class
+org\daniel\netflix\todoservice\component\DatabaseLoader.class
+org\daniel\netflix\todoservice\repository\TodoEntityRepository.class
+org\daniel\netflix\todoservice\controller\GreetingController.class
+org\daniel\netflix\todoservice\TodoServiceApplication.class

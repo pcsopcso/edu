@@ -1,0 +1,16 @@
+org\client\config\WebMvcConfig.class
+org\client\security\CustomAuthenticationFailureHandler.class
+org\client\controller\ClientController.class
+org\client\service\UserInfoDetailsServiceImpl.class
+org\client\service\OAuth2ClientTokenService.class
+org\client\security\ResourceOwnerAuthenticationFilter.class
+org\client\security\CustomAuthenticationSuccessHandler.class
+org\client\entity\domain\UserProfile.class
+org\client\service\utils\ShaPasswordEncoder.class
+org\client\config\OAuth2ClientConfig.class
+org\client\ClientApplication.class
+org\client\repository\UserInfoRepository.class
+org\client\entity\UserInfo.class
+org\client\config\WebSecurityConfig.class
+org\client\service\utils\Crypto.class
+org\client\constrant\UserRole.class

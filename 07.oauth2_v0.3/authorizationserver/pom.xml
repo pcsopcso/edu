@@ -1,0 +1,182 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>com.spring.security</groupId>
+		<artifactId>oauth2</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+	</parent>
+	<artifactId>authorizationserver</artifactId>
+	<packaging>jar</packaging>
+	<name>authorizationserver</name>
+	
+	<url>http://maven.apache.org</url>
+	
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<docker.image.prefix>pcsopcso</docker.image.prefix>
+	</properties>
+	
+	<dependencies>
+		<!-- common module dependency -->
+		<!--dependency>
+			<groupId>com.spring.security</groupId>
+			<artifactId>common</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		<dependency>
+		    <groupId>org.springframework.security.oauth.boot</groupId>
+		    <artifactId>spring-security-oauth2-autoconfigure</artifactId>
+		    <version>2.1.4.RELEASE</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+		<dependency>
+		    <groupId>junit</groupId>
+		    <artifactId>junit</artifactId>
+		    <scope>test</scope>
+	    </dependency>
+	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<useSystemClassLoader>false</useSystemClassLoader>
+					<!--transformer
+						implementation="org.apache.maven.plugins.shade.resource.AppendingTransformer">
+						<resource>META-INF/spring.handlers</resource>
+                    </transformer-->
+					<source>11</source>
+					<target>11</target>
+				</configuration>
+			</plugin>
+			<!-- Docker maven plugin -->
+<!-- 			<plugin>
+				<groupId>com.spotify</groupId>
+				<artifactId>docker-maven-plugin</artifactId>
+				<version>1.2.0</version>
+				<configuration>
+					<imageName>${docker.image.prefix}/${project.artifactId}:v0.1</imageName>
+					<dockerDirectory>${project.basedir}/src/main/docker</dockerDirectory>
+					<resources>
+						<resource>
+							<targetPath>/</targetPath>
+							<directory>${project.build.directory}</directory>
+							<include>${project.build.finalName}.jar</include>
+						</resource>
+					</resources>
+				</configuration>
+			</plugin> -->
+		</plugins>
+	</build>
+	<profiles>
+        <profile>
+        <id>dockerBuild</id>
+			<build>
+				<plugins>
+					<plugin>
+						<artifactId>maven-resources-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>copy-resources</id>
+								<phase>validate</phase>
+								<goals>
+									<goal>copy-resources</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>${basedir}/target</outputDirectory>
+									<resources>
+										<resource>
+											<directory>src/main/docker</directory>
+											<filtering>true</filtering>
+										</resource>
+									</resources>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-antrun-plugin</artifactId>
+						<version>1.8</version>
+						<executions>
+							<execution>
+								<id>prepare-package</id>
+								<phase>package</phase>
+								<inherited>false</inherited>
+								<configuration>
+									<target>
+									<!--docker build -t pcsopcso/authorizationserver:0.0.0-SNAPSHOT .}"/-->
+										<exec executable="docker">
+											<arg value="build"/>
+											<arg value="-t"/>
+											<arg value="${docker.image.prefix}/${project.artifactId}:${project.version}"/>
+											<arg value="target"/>
+										</exec>
+									</target>
+								</configuration>
+								<goals>
+									<goal>run</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+        </profile>
+		<profile>
+            <id>dockerRelease</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>1.8</version>
+                        <executions>
+                            <execution>
+                                <phase>install</phase>
+                                <inherited>false</inherited>
+                                <configuration>
+                                    <target>
+										<exec executable="docker">
+											<arg value="tag"/>
+											<arg value="${docker.image.prefix}/${project.artifactId}:${project.version}"/>
+											<arg value="${docker.image.prefix}/${project.artifactId}:latest"/>
+										</exec>
+										<exec executable="docker">
+											<arg value="push"/>
+											<arg value="${docker.image.prefix}/${project.artifactId}:latest"/>
+										</exec>
+                                    </target>
+                                </configuration>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>

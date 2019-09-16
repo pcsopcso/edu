@@ -1,0 +1,163 @@
+package com.daniel.todo.controller;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.*;
+import java.util.List;
+import com.daniel.todo.component.GlobalErrorAttributes;
+import com.daniel.todo.model.Todo;
+import com.daniel.todo.service.TodoServiceImple;
+import com.google.gson.Gson;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
+
+/**
+ * Handles requests for the application home page.
+ */
+@RestController
+@RequestMapping("/")
+public class TodoController {
+
+	private static final Logger logger = LoggerFactory.getLogger(TodoController.class);
+
+	@Autowired
+	TodoServiceImple todoService;
+
+	@Autowired
+	GlobalErrorAttributes globalErrorAttributes;
+
+	/**
+	 * Simply selects the home view to render by returning its name.
+	 */
+	@GetMapping()
+	public String home() {
+		String strTemp = "Hello Todo! <br>" + getHostInfo();
+		/*
+		 * String ss =
+		 * "[{\"id\": 1, \"user\": \"daniel\", \"desc\": \"메일\", \"targetDate\": \"2019-09-27 14:30:00\",\"done\": false},"
+		 * +
+		 * "{\"id\": 3,\"user\": \"daniel\",\"desc\": \"교육\",\"targetDate\": \"2019-10-17 13:30:00\",\"done\": false}]"
+		 * ;
+		 * 
+		 * Gson gson = new Gson();
+		 * 
+		 * Todo[] array = gson.fromJson(ss, Todo[].class); List<Todo> todos =
+		 * Arrays.asList(array);
+		 * 
+		 * strTemp = strTemp + " " + todos.get(0).getUser();
+		 */
+
+		return strTemp;
+	}
+
+	@GetMapping("todos")
+	public ResponseEntity<List<Todo>> getAllTodos() throws Exception {
+		logger.info("/todos");
+
+		List<Todo> todoList = todoService.getAllTodos();
+		if (todoList.size() == 0)
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Todo Resource Not Found");
+		return new ResponseEntity<List<Todo>>(todoList, HttpStatus.OK);
+	}
+
+	@GetMapping("todos/{id}")
+	public Object getTodo(@PathVariable Long id) throws Exception {
+		logger.info("/todos/{id}");
+
+		Todo todo = todoService.retrieveTodo(id);
+		if (todo == null)
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Todo Resource Not Found");
+
+		return new ResponseEntity<Todo>(todo, HttpStatus.OK);
+	}
+
+	@GetMapping("todos/user/{name}")
+	public ResponseEntity<List<Todo>> getTodo(@PathVariable String name) throws Exception {
+		logger.info("/todos/user/{name}");
+
+		List<Todo> todos = todoService.retrieveTodos(name);
+		if (todos.size() == 0 || todos == null)
+			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Todo Resource Not Found");
+
+		return new ResponseEntity<List<Todo>>(todos, HttpStatus.OK);
+	}
+
+	@PutMapping("todos/todo")
+	public ResponseEntity<Todo> todoUpdate(@RequestParam(value = "todoID") Long todoID,
+			@RequestParam(value = "user") String user, @RequestParam(value = "desc") String desc,
+			@RequestParam(value = "targetDate") String targetDate, @RequestParam(value = "isDone") Boolean isDone)
+			throws Exception {
+
+		// Todo todo = new Todo(id, user, desc, targetDate, isDone);
+
+		Todo todo = todoService.updateTodo(todoID, user, desc, targetDate, isDone);
+		if (todo == null)
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Todo Bad Request");
+
+		return new ResponseEntity<Todo>(todo, HttpStatus.OK);
+	}
+
+	@PostMapping("todos/todo")
+	public ResponseEntity<Todo> todoAdd(@RequestParam(value = "user") String user,
+			@RequestParam(value = "desc") String desc, @RequestParam(value = "targetDate") String targetDate,
+			@RequestParam(value = "isDone") Boolean isDone) throws Exception {
+
+		Todo todo = todoService.addTodo(user, desc, targetDate, isDone);
+
+		if (todo == null)
+			throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Todo Bad Request");
+
+		return new ResponseEntity<Todo>(todo, HttpStatus.OK);
+	}
+
+	private static Object retJson(Object obj) {
+		Gson gson = new Gson();
+
+		return gson.toJson(obj);
+	}
+
+	private static String getHostInfo() {
+		String hostname = System.getenv("HOSTNAME");
+		if (hostname != null)
+			return hostname;
+
+		String lineStr = "";
+		try {
+			Process process = Runtime.getRuntime().exec("hostname");
+			BufferedReader br = new BufferedReader(new InputStreamReader(process.getInputStream()));
+			while ((lineStr = br.readLine()) != null) {
+				hostname = lineStr;
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+			hostname = "";
+		}
+		return "HostName : " + hostname + getAddress(hostname);
+	}
+
+	private static String getAddress(String hostname) {
+		String ipaddress = "";
+		try {
+			InetAddress address = InetAddress.getByName(hostname);
+			ipaddress = " Address: " + address.getHostAddress();
+		} catch (UnknownHostException e1) {
+			e1.printStackTrace();
+			System.out.println("error");
+			ipaddress = "";
+		}
+		return ipaddress;
+	}
+
+}
