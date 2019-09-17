@@ -61,8 +61,8 @@ public class ClientController {
 		
 		Client client = new Client();
 		client.addAdditionalInformation("name", clientDetails.getName());
-		client.setRegisteredRedirectUri(new HashSet<>(Arrays.asList(clientDetails.getRedirectUri()));
-		client.setClientType(ClientType.PUBLIC);
+		client.setRegisteredRedirectUri(new HashSet<>(Arrays.asList(clientDetails.getRedirectUri())));
+		client.setClientType(ClientType.valueOf(clientDetails.getClientType()));
 		client.setClientId(randomId);
 		client.setClientSecret(Crypto.sha256(randomSecret));
 		client.setAccessTokenValiditySeconds(3600);

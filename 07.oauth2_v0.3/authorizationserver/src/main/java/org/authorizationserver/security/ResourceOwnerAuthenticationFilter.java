@@ -16,7 +16,8 @@ import lombok.extern.slf4j.Slf4j;
 /**
  * Resource Owner Form Login Filter
  * @author Daniel Park
- *
+ * Form Login시 걸리는 Filter 이 필터는 HttpServletRequest에서 사용자가 Form으로 입력한 로그인 정보를 인터셉트
+ * AuthenticationManager에게 Authentication 객체를 넘겨줌.
  */
 @Slf4j
 public class ResourceOwnerAuthenticationFilter extends UsernamePasswordAuthenticationFilter{
@@ -27,6 +28,10 @@ public class ResourceOwnerAuthenticationFilter extends UsernamePasswordAuthentic
 		super.setAuthenticationManager(authenticationManager);
 	}
 	
+	/*
+     * 해당 필터에서 인증 프로세스 이전에 Request요청에서 사용자 정보를 가져와서
+     * Authentication 객체를 인증 프로세스 객체에게 전달하는 역할
+     */
 	@Override
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
 			throws AuthenticationException {
@@ -54,11 +59,10 @@ public class ResourceOwnerAuthenticationFilter extends UsernamePasswordAuthentic
 		username = username.trim();
 		
 		UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(username, password);
-		
+	
+		// Tocken을 넘겨줌
 		setDetails(request, authRequest);
 		
 		return this.getAuthenticationManager().authenticate(authRequest);
 	}
-	
-	
 }
