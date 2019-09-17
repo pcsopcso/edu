@@ -14,10 +14,10 @@ import lombok.extern.slf4j.Slf4j;
 
 
 /**
- * UserDetailsService 구현체. 
- * UserInfo 인증에 사용되는 서비스클래스이다.
  * @author daniel Park
- *
+ * AuthenticationProvider 구현체에서 인증에 사용할 사용자 인증정보를 DB에서 가져오는 역할을 하는 클래스
+ * UserDetailsService 구현체. 
+ * UserInfo 인증에 사용되는 서비스 클래스
  */
 @Slf4j
 @Service

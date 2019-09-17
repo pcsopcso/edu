@@ -12,9 +12,10 @@ import org.springframework.security.web.authentication.SavedRequestAwareAuthenti
 import lombok.extern.slf4j.Slf4j;
 
 /**
- * 
+ *  
  * @author daniel Park
- *
+ * Authentication :  접근 주체를 나타냄
+ * 
  */
 @Slf4j
 public class CustomAuthenticationSuccessHandler extends SavedRequestAwareAuthenticationSuccessHandler {
