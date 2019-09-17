@@ -15,7 +15,6 @@
 		<module>authorizationserver</module>
 		<module>resourceserver</module>
 		<module>client</module>
-		<module>common</module>
 	</modules>
 	<properties>
 		<java.version>11</java.version>
